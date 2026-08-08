@@ -2,8 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const Usuario = require("../models/Usuario");
+const { hashPassword } = require("../utils/password");
 
-const SALT_ROUNDS = 10;
 const JWT_EXPIRES_IN = "7d";
 
 function apiError(status, mensaje) {
@@ -30,7 +30,7 @@ async function register(req, res, next) {
       return next(apiError(409, "El correo ya está registrado"));
     }
 
-    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    const passwordHash = await hashPassword(password);
     const usuario = await Usuario.create({
       nombre: nombre.trim(),
       email: emailNormalizado,
