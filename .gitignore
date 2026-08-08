@@ -1,0 +1,27 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Frontend build output
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Documentacion interna (solo README.md se sube al repositorio)
+/CLAUDE.md
+docs/**/*.md
