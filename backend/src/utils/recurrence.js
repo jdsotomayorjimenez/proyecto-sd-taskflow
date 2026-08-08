@@ -2,7 +2,7 @@ const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
 
 function siguienteDiaSemana(base, diasSemana) {
   const dias = [...diasSemana].sort((a, b) => a - b);
-  const diaActual = base.getDay();
+  const diaActual = base.getUTCDay();
 
   const siguienteMismaSemana = dias.find((d) => d > diaActual);
   const offset = siguienteMismaSemana !== undefined
@@ -38,7 +38,7 @@ function calcularSiguienteFecha(fechaActual, repeticion) {
 
     case "mensual":
       siguiente = new Date(base);
-      siguiente.setMonth(siguiente.getMonth() + intervalo);
+      siguiente.setUTCMonth(siguiente.getUTCMonth() + intervalo);
       break;
 
     default:
