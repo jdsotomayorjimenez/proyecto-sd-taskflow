@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: juandifrost17/taskflow-backend:v1
+          image: juandifrost17/taskflow-backend:v2
           ports:
             - containerPort: 3000
           envFrom:
