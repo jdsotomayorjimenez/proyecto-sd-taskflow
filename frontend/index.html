@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow</title>
+    <!--
+      config.js define window.APP_CONFIG.API_URL en TIEMPO DE EJECUCION.
+      En Kubernetes B lo reescribe 40-runtime-config.sh desde el ConfigMap.
+      NUNCA se hardcodea la IP Tailscale de la Maquina A dentro del bundle de React.
+    -->
+    <script src="/config.js"></script>
+    <!-- Tema claro/oscuro aplicado antes de pintar (evita parpadeo) -->
+    <script>
+      try {
+        var t = localStorage.getItem('taskflow_theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        document.documentElement.dataset.theme = t
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

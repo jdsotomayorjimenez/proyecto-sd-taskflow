@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  # NodePort para poder abrir la SPA desde el navegador de la Maquina B:
+  #   http://localhost:30081
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30081

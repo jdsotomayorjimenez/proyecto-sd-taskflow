@@ -1,0 +1,20 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+*.log
+Dockerfile
+.dockerignore
+README.md
+
+# Docs de planificacion y manifiestos K8s: no van dentro de la imagen
+TASKFLOW_PLAN_MAESTRO.md
+TASKFLOW_KAREL_FRONTEND.md
+*.yaml
+*.yml
+.claude
+frontend
