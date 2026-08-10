@@ -62,8 +62,6 @@ Kubernetes con 2 Pods de Backend + 1 Pod de MongoDB, servicios correctos (`NodeP
 | ![Backend con 2 replicas](docs/evidencias/05-a-backend-2-replicas.png) | ![Backend escalado a 4 replicas](docs/evidencias/06-a-backend-4-replicas.png) |
 | Backend con 2 réplicas (estado inicial) | Backend escalado a 4 réplicas |
 
-Script usado para generarlas: `docs/evidencias/capturar-evidencias.sh`.
-
 ## Frontend — Karel (Máquina B)
 
 React 18 + Vite + Tailwind CSS + React Router + FullCalendar, servido con Nginx y desplegado en Kubernetes. La app corre en la Máquina B y consume la API del backend de la Máquina A por Tailscale, nunca por `localhost`.
