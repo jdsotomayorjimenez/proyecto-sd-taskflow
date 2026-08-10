@@ -9,7 +9,7 @@ Node.js + Express + Mongoose + MongoDB + JWT + bcryptjs, contenerizado y despleg
 
 - Código: `backend/`
 - Manifiestos de Kubernetes: `kubernetes/maquina-a/`
-- Imagen publicada: [`juandifrost17/taskflow-backend:v1`](https://hub.docker.com/r/juandifrost17/taskflow-backend)
+- Imagen publicada: [`juandifrost17/taskflow-backend:v2`](https://hub.docker.com/r/juandifrost17/taskflow-backend)
 
 ### Correr tests localmente
 
