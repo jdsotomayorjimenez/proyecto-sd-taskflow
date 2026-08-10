@@ -66,4 +66,70 @@ Script usado para generarlas: `docs/evidencias/capturar-evidencias.sh`.
 
 ## Frontend — Karel (Máquina B)
 
-_Pendiente — sección a completar por Karel con su parte (React, Kubernetes B, evidencias del Frontend)._
+React 18 + Vite + Tailwind CSS + React Router + FullCalendar, servido con Nginx y desplegado en Kubernetes. La app corre en la Máquina B y consume la API del backend de la Máquina A por Tailscale, nunca por `localhost`.
+
+- Código: `frontend/`
+- Manifiestos de Kubernetes: `kubernetes/maquina-b/`
+- Imagen publicada: [`karelgonzalez/karel-taskflow-frontend:latest`](https://hub.docker.com/r/karelgonzalez/karel-taskflow-frontend)
+- Acceso web: `http://localhost:30081` (NodePort del Frontend)
+
+Pantallas: registro e inicio de sesión con JWT, un resumen con indicadores (por hacer, vencidas, para hoy, completadas), la lista de tareas con filtros, la vista de hoy y un calendario mensual y semanal. El CRUD completo (crear, listar, editar, completar y eliminar) trabaja contra el backend real.
+
+### Cómo se conecta con la Máquina A
+
+La IP de Tailscale de la Máquina A no se escribe en el código. Se inyecta en tiempo de ejecución: el ConfigMap `frontend-config` define `API_URL`, y al arrancar el contenedor el script `docker-entrypoint.d/40-runtime-config.sh` genera un `config.js` que React lee como `window.APP_CONFIG.API_URL`. Para apuntar a otra IP basta con cambiar el ConfigMap y reiniciar el pod, sin recompilar.
+
+Del lado de la Máquina A hacen falta tres cosas: el backend expuesto en `NodePort 30080` alcanzable por Tailscale, Tailscale encendido en la misma tailnet, y el CORS del backend abierto al origen `http://localhost:30081`.
+
+### Docker y despliegue
+
+```bash
+# Construir y publicar la imagen
+docker build -t karelgonzalez/karel-taskflow-frontend:latest ./frontend
+docker push karelgonzalez/karel-taskflow-frontend:latest
+
+# Desplegar en Kubernetes de la Máquina B
+kubectl apply -f kubernetes/maquina-b/
+kubectl get pods
+kubectl get services
+```
+
+La app queda en `http://localhost:30081`.
+
+### Desarrollo local
+
+El frontend trae un backend simulado (mock) que guarda los datos en el navegador, para trabajar la interfaz sin depender de la Máquina A. Se activa con `VITE_USE_MOCK=true` (ver `frontend/.env.example`).
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Credenciales de prueba
+
+En la app desplegada, contra el backend real:
+
+- `demo1@taskflow.test` / `demo1234`
+- `lautaro@taskflow.test` / `quintero1234`
+
+En modo mock (desarrollo): `demo@taskflow.com` / `demo123`.
+
+### Evidencias — Máquina B
+
+La app en el navegador con datos reales del backend, el clúster de Kubernetes con el pod del Frontend, `kubectl get pods` y `get services`, `tailscale status`, la prueba de conexión cruzada y la imagen publicada en Docker Hub.
+
+| | |
+|---|---|
+| ![Registro](docs/evidencias/01-b-app-registro.png) | ![Inicio de sesion](docs/evidencias/02-b-app-inicio-sesion.png) |
+| Registro | Inicio de sesión |
+| ![Resumen](docs/evidencias/03-b-app-resumen.png) | ![Hoy](docs/evidencias/04-b-app-hoy.png) |
+| Resumen con indicadores | Hoy |
+| ![Mis tareas](docs/evidencias/05-b-app-mis-tareas.png) | ![Nueva tarea](docs/evidencias/08-b-app-nueva-tarea.png) |
+| Mis tareas con filtros | Crear tarea |
+| ![Calendario mensual](docs/evidencias/06-b-app-calendario-mensual.png) | ![Calendario semanal](docs/evidencias/07-b-app-calendario-semanal.png) |
+| Calendario (mes) | Calendario (semana) |
+| ![Kubernetes en Docker Desktop](docs/evidencias/09-b-docker-desktop-kubernetes.png) | ![kubectl y tailscale](docs/evidencias/10-b-kubectl-pods-services-tailscale.png) |
+| Kubernetes en Docker Desktop | `kubectl get pods/services` y `tailscale status` |
+| ![Conexion cruzada](docs/evidencias/11-b-curl-cruzado-backend.png) | ![Imagen en Docker Hub](docs/evidencias/12-b-dockerhub-imagen.png) |
+| Conexión cruzada al backend de la Máquina A | Imagen publicada en Docker Hub |

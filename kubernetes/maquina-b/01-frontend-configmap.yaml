@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  # API_URL = IP Tailscale de la Maquina A (Juan) + NodePort del backend.
+  # Cuando Juan te de su IP Tailscale, reemplaza IP_TAILSCALE_MAQUINA_A.
+  #
+  #   Ejemplo:  API_URL: "http://100.90.20.15:30080"
+  #
+  # NUNCA usar aqui:
+  #   http://localhost:3000        (el backend no corre en la Maquina B)
+  #   http://backend-service:3000  (ese Service solo existe en el cluster de A)
+  API_URL: "http://100.86.94.78:30080"

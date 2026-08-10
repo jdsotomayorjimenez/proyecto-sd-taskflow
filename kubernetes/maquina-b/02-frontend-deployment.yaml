@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  # REGLA DEL PROFESOR: el Frontend siempre con 1 replica.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: karelgonzalez/karel-taskflow-frontend:latest
+          # IfNotPresent permite usar la imagen construida localmente en el
+          # daemon de Docker Desktop sin depender de un push a Docker Hub.
+          # (Con el tag :latest el default seria Always, que fallaria sin push.)
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          # Inyecta API_URL desde el ConfigMap -> lo lee 40-runtime-config.sh
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+          readinessProbe:
+            httpGet:
+              path: /config.js
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
