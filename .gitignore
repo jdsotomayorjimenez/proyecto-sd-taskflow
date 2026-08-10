@@ -21,7 +21,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Documentacion interna (solo README.md se sube al repositorio)
-/CLAUDE.md
-docs/**/*.md
