@@ -18,6 +18,13 @@ describe('mockApi', () => {
     expect(res.data.status).toBe('ok')
   })
 
+  it('GET /api/ready responde ready con la BD conectada', async () => {
+    const res = await handle('GET', '/api/ready')
+    expect(res.status).toBe(200)
+    expect(res.data.status).toBe('ready')
+    expect(res.data.database).toBe('connected')
+  })
+
   it('login demo funciona y credenciales malas fallan', async () => {
     const ok = await handle('POST', '/api/auth/login', {
       email: 'demo@taskflow.com',

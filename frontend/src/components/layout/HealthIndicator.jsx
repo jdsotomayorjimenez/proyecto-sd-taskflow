@@ -1,7 +1,10 @@
 // ============================================================================
 //  Indicador "Backend conectado" (Plan Maestro seccion 6.2 / 11.1)
-//  Hace ping periodico a GET /api/health. Es la prueba visual de que el
-//  frontend de la Maquina B alcanza el backend de la Maquina A por Tailscale.
+//  Hace ping periodico a GET /api/ready (readiness): se pone en verde SOLO si
+//  el backend de la Maquina A esta vivo Y Mongoose esta conectado a MongoDB.
+//  Es la prueba visual de la cadena completa Frontend (B) -> Backend (A) -> BD.
+//  No usamos /api/health porque es la sonda de liveness y devuelve 200 aunque
+//  Mongo este caido, lo que dejaria el indicador en verde de forma enganosa.
 // ============================================================================
 import { useEffect, useState } from 'react'
 import { authService } from '../../services/authService.js'
@@ -17,7 +20,7 @@ export default function HealthIndicator({ compact = false }) {
 
     async function chequear() {
       try {
-        await authService.health()
+        await authService.ready()
         if (activo) setEstado('ok')
       } catch {
         if (activo) setEstado('error')
