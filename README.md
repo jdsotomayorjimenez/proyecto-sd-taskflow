@@ -129,10 +129,6 @@ React 18 + Vite + Tailwind CSS + React Router + FullCalendar, servido con Nginx 
 
 Pantallas: registro e inicio de sesión con JWT, un resumen con indicadores (por hacer, vencidas, para hoy, completadas), la lista de tareas con filtros, la vista de hoy y un calendario mensual y semanal. El CRUD completo (crear, listar, editar, completar y eliminar) trabaja contra el backend real.
 
-### Tareas recurrentes
-
-Una tarea puede repetirse de forma **diaria**, **semanal** (en los días de la semana que elijas) o **mensual**, con un intervalo configurable (cada N días/semanas/meses) y una fecha de fin opcional. El calendario expande cada tarea recurrente y la muestra en **todos los días** en que ocurre dentro del rango visible; una tarea **sin fecha de fin** (por ejemplo un hábito diario) se muestra siempre. Las tareas ya **Completadas** no se proyectan al futuro: aparecen solo en su propio día, en línea con el modelo del backend, que al completar una tarea recurrente materializa la siguiente ocurrencia. La expansión es puramente visual en el cliente (`frontend/src/utils/recurrence.js`) y no altera el contrato de la API.
-
 ### Cómo se conecta con la Máquina A
 
 La IP de Tailscale de la Máquina A no se escribe en el código. Se inyecta en tiempo de ejecución: el ConfigMap `frontend-config` define `API_URL`, y al arrancar el contenedor el script `docker-entrypoint.d/40-runtime-config.sh` genera un `config.js` que React lee como `window.APP_CONFIG.API_URL`. Para apuntar a otra IP basta con cambiar el ConfigMap y reiniciar el pod, sin recompilar.
