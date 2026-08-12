@@ -9,7 +9,57 @@ Node.js + Express + Mongoose + MongoDB + JWT + bcryptjs, contenerizado y despleg
 
 - Código: `backend/`
 - Manifiestos de Kubernetes: `kubernetes/maquina-a/`
-- Imagen publicada: [`juandifrost17/taskflow-backend:v2`](https://hub.docker.com/r/juandifrost17/taskflow-backend)
+- Imagen publicada: [`juandifrost17/taskflow-backend:v3`](https://hub.docker.com/r/juandifrost17/taskflow-backend)
+
+### Secret y despliegue de Máquina A
+
+El repositorio no contiene credenciales reales. El archivo
+`kubernetes/maquina-a/01-mongodb-secret.yaml.example` es solo una referencia y,
+por no terminar en `.yaml`, no se procesa al aplicar el directorio de
+manifiestos. En una máquina nueva, genera valores locales seguros y crea el
+Secret antes de desplegar:
+
+```bash
+MONGO_PASSWORD="$(openssl rand -base64 36)"
+JWT_SECRET="$(openssl rand -base64 48)"
+
+kubectl create secret generic taskflow-secret \
+  --from-literal=MONGO_USERNAME=taskflow_admin \
+  --from-literal=MONGO_PASSWORD="$MONGO_PASSWORD" \
+  --from-literal=JWT_SECRET="$JWT_SECRET"
+
+kubectl apply -f kubernetes/maquina-a/
+```
+
+No guardes ni confirmes esos valores en Git. En una instalación nueva, MongoDB
+crea el usuario raíz a partir del Secret. En una instalación existente, el
+usuario y la contraseña del Secret deben coincidir con los almacenados realmente
+en MongoDB.
+
+Cambiar `MONGO_INITDB_ROOT_PASSWORD` después de inicializar `/data/db` no cambia
+la contraseña del usuario persistido. Para rotarla sin borrar el PVC:
+
+1. comprueba que la credencial actual autentica y registra los conteos de datos;
+2. detén temporalmente los pods del backend;
+3. genera una contraseña nueva fuera del repositorio;
+4. ejecuta `db.changeUserPassword(...)` en `admin` con la credencial actual;
+5. actualiza `taskflow-secret` con exactamente el mismo valor;
+6. recrea MongoDB y el backend para que reciban las nuevas variables;
+7. verifica autenticación, conteos, logs y endpoints.
+
+No elimines `mongodb-pvc` para hacer esta rotación. Cambiar `JWT_SECRET` invalida
+los tokens existentes, por lo que los usuarios deben iniciar sesión otra vez.
+
+MongoDB mantiene una sola réplica sobre un PVC y usa una estrategia `Recreate`:
+durante una actualización se termina el pod anterior antes de crear el nuevo,
+evitando dos procesos que intenten usar el mismo volumen.
+
+### Estado de salud de Máquina A
+
+- `GET /api/health`: liveness; comprueba que Node/Express está vivo y no depende
+  de MongoDB.
+- `GET /api/ready`: readiness; devuelve `200` solo si Mongoose está conectado y
+  `503` cuando el backend aún no puede atender operaciones con la base.
 
 ### Correr tests localmente
 
@@ -51,16 +101,22 @@ Crea 2 usuarios de prueba con tareas variadas (ver `backend/scripts/seed.js` par
 
 ### Evidencias — Máquina A
 
-Kubernetes con 2 Pods de Backend + 1 Pod de MongoDB, servicios correctos (`NodePort`/`ClusterIP`), conectividad por Tailscale, y el escalado en vivo de 2 a 4 réplicas.
+Kubernetes con 2 Pods de Backend + 1 Pod de MongoDB, servicios correctos
+(`NodePort`/`ClusterIP`), estado de Tailscale, probes separadas, imagen `v3` y
+escalado en vivo de 2 a 4 réplicas.
 
 | | |
 |---|---|
-| ![kubectl get pods](docs/evidencias/01-a-kubectl-get-pods.png) | ![kubectl get services](docs/evidencias/02-a-kubectl-get-services.png) |
-| `kubectl get pods` | `kubectl get services` |
-| ![tailscale status](docs/evidencias/03-a-tailscale-status.png) | ![kubectl describe deployment backend](docs/evidencias/04-a-describe-backend.png) |
-| `tailscale status` | `kubectl describe deployment backend` |
-| ![Backend con 2 replicas](docs/evidencias/05-a-backend-2-replicas.png) | ![Backend escalado a 4 replicas](docs/evidencias/06-a-backend-4-replicas.png) |
-| Backend con 2 réplicas (estado inicial) | Backend escalado a 4 réplicas |
+| ![Pods, servicios y Tailscale](docs/evidencias/01-a-kubectl-pods-services-tailscale.png) | ![Describe del backend, parte 1](docs/evidencias/02-a-describe-backend-parte-1.png) |
+| Pods, servicios y estado de Tailscale | Deployment backend: imagen `v3`, liveness y readiness |
+| ![Describe del backend, parte 2](docs/evidencias/03-a-describe-backend-parte-2.png) | ![Backend con 2 replicas](docs/evidencias/04-a-backend-2-replicas.png) |
+| Deployment backend: condiciones, ReplicaSets y eventos | Backend con 2 réplicas (estado inicial) |
+| ![Backend escalado a 4 replicas](docs/evidencias/05-a-backend-4-replicas.png) | ![Health y readiness](docs/evidencias/06-a-health-readiness.png) |
+| Backend escalado a 4 réplicas | `/api/health` y `/api/ready` responden HTTP 200 |
+| ![Contenedores en Docker Desktop](docs/evidencias/07-a-docker-desktop-contenedores.png) | ![Kubernetes en Docker Desktop](docs/evidencias/09-a-docker-desktop-kubernetes.png) |
+| Contenedores de Backend y MongoDB | Clúster activo con 2 Pods de Backend y 1 de MongoDB |
+| ![Backend v3 en Docker Hub](docs/evidencias/12-a-dockerhub-imagen.png) | |
+| Imagen `juandifrost17/taskflow-backend:v3` publicada en Docker Hub | |
 
 ## Frontend — Karel (Máquina B)
 
