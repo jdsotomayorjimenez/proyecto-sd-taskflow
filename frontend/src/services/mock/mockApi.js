@@ -3,6 +3,7 @@
 //  contrato de Juan (Plan Maestro seccion 11):
 //
 //    GET    /api/health
+//    GET    /api/ready
 //    POST   /api/auth/register
 //    POST   /api/auth/login
 //    GET    /api/tareas
@@ -69,6 +70,12 @@ function handleSync(method, path, body, token) {
   // ---------------------------------------------------------------- health
   if (method === 'GET' && clean === '/api/health') {
     return ok({ status: 'ok', service: 'taskflow-backend (mock)' })
+  }
+
+  // ----------------------------------------------------------------- ready
+  // El mock siempre tiene su "BD" en memoria disponible -> readiness OK.
+  if (method === 'GET' && clean === '/api/ready') {
+    return ok({ status: 'ready', database: 'connected' })
   }
 
   // ------------------------------------------------------------------ auth
